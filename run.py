@@ -1,13 +1,13 @@
 import argparse
 from commands import process
-from variables import *
+from variables import format_variable
 
 parser = argparse.ArgumentParser()
 args = parser.parse_args()
 
 class Pipeline:
 
-	def __init__(self,command):
+	def __init__(self,command_str):
 		def evaluate(cmd):
 			try:
 				cmd = eval(cmd)
