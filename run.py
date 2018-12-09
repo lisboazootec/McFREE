@@ -8,18 +8,15 @@ args = parser.parse_args()
 class Pipeline:
 
 	def __init__(self,step,command_list):
-		def evaluate(cmd):
-			try:
-				cmd = eval(cmd)
-			except Exception as e:
-				pass
-			return cmd
 
-		command = [evaluate(cmd) for cmd in command]
-			
+		command_runner,command_args = command_list
+
+		command_runner = Variables.get_runner(command_runner)
+		command_args = Variables.format_files(command_args)
+
 		self.name = step
-		self.runner = command[0]
-		self.arguments = command[1:]
+		self.runner = command_runner
+		self.arguments = command_args
 
 	def run(self):
 		if type(self.runner)==str:
@@ -29,7 +26,7 @@ class Pipeline:
 			self.runner(*self.arguments)
 
 	def _runos(self):
-		command = "{} {}".format(self.runner,self._args_str)
+		command = "{} {}".format(self.runner,self.arguments)
 		# os.system(command)
 		print('Execution command "{}" on OS',command)
 
