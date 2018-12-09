@@ -1,5 +1,5 @@
 import argparse
-from commands import process
+from steps import steps
 from variables import format_variable
 
 parser = argparse.ArgumentParser()
