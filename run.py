@@ -38,7 +38,7 @@ class PipelineStep:
 		if type(self.runner)==str:
 			self._runos()
 		else:
-			# raise NotImplementedError()
+			raise NotImplementedError()
 			self.runner(*self.arguments)
 
 	def _runos(self):
@@ -46,8 +46,4 @@ class PipelineStep:
 		# os.system(command)
 		print('Execution command "{}" on OS',command)
 
-	def _args_str(self):
-		return " ".join(self.arguments)
-
-for step,command_list in steps.items().sort(lambda x:x[0]):
-	Pipeline(step,command_list).run()
+pipeline = [PipelineStep(step,command_list) for step,command_list in steps.items().sort(lambda x:x[0])]
