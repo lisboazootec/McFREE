@@ -22,19 +22,19 @@ class Variables:
 
 class PipelineStep:
 
-	def __init__(self,step,command_list):
+	def __init__(self,step):
 
-		command_runner,command_args = command_list
+		# Required values
+		self.index = step['index']
+		self.runner = Variables.get_runner(step['runner'])
+		self.arguments = Variables.format_files(step['args'])
 
-		command_runner = Variables.get_runner(command_runner)
-		command_args = Variables.format_files(command_args)
-
-		self.name = step
-		self.runner = command_runner
-		self.arguments = command_args
+		# Optional values
+		self.name = step.get('name') or ''
+		self.description = step.get('description') or ''
 
 	def __str__(self):
-		return "{name}: {runner} {arguments}".format(**self.__dict__)
+		return "{name}({index}): {runner} {arguments}".format(**self.__dict__)
 
 	__repr__ = __str__
 
@@ -54,4 +54,4 @@ class PipelineStep:
 		print('Execution command on OS:',command)
 		os.system(command)
 
-pipeline = [PipelineStep(step,command_list) for step,command_list in sorted(list(steps.items()),key=lambda x:x[0])]
+pipeline = [PipelineStep(step) for step in steps]
