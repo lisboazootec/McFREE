@@ -1,7 +1,6 @@
-def sed():
-	return "sed"
-
-
 __all__ = [
 	'sed',
 ]
+
+def sed():
+	return "sed"
