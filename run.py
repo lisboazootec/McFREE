@@ -5,7 +5,23 @@ from variables import steps,files,runners
 parser = argparse.ArgumentParser()
 args = parser.parse_args()
 
-class Pipeline:
+class Variables:
+	_runners = runners
+	_files = files
+
+	@classmethod
+	def get_runner(cls,cmd_str):
+		return cls._runners.get(cmd_str) or cmd_str
+
+	@classmethod
+	def format_files(cls,args_str):
+		try:
+			return args_str.format(**cls._files)
+		except KeyError as e:
+			e.args = ("Referência de arquivo não encontrado: %s"%str(e),)
+			raise e
+
+class PipelineStep:
 
 	def __init__(self,step,command_list):
 
