@@ -1,9 +1,8 @@
+import os
 import argparse
+import shlex
 
 from variables import steps,files,runners
-
-parser = argparse.ArgumentParser()
-args = parser.parse_args()
 
 class Variables:
 	_runners = runners
@@ -34,16 +33,25 @@ class PipelineStep:
 		self.runner = command_runner
 		self.arguments = command_args
 
+	def __str__(self):
+		return "{name}: {runner} {arguments}".format(**self.__dict__)
+
+	__repr__ = __str__
+
 	def run(self):
 		if type(self.runner)==str:
 			self._runos()
 		else:
-			raise NotImplementedError()
-			self.runner(*self.arguments)
 
+			self.arguments = shlex.split(self.arguments)
+
+			parser = argparse.ArgumentParser()
+			[parser.add_argument(arg) for arg in self.arguments if arg.startswith('-')]
+			args = parser.parse_args(self.arguments)
+			self.runner(**vars(args))
 	def _runos(self):
 		command = "{} {}".format(self.runner,self.arguments)
-		# os.system(command)
-		print('Execution command "{}" on OS',command)
+		print('Execution command on OS:',command)
+		os.system(command)
 
-pipeline = [PipelineStep(step,command_list) for step,command_list in steps.items().sort(lambda x:x[0])]
+pipeline = [PipelineStep(step,command_list) for step,command_list in sorted(list(steps.items()),key=lambda x:x[0])]
