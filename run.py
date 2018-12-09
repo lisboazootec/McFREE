@@ -7,7 +7,7 @@ args = parser.parse_args()
 
 class Pipeline:
 
-	def __init__(self,command_str):
+	def __init__(self,step,command_list):
 		def evaluate(cmd):
 			try:
 				cmd = eval(cmd)
@@ -17,6 +17,7 @@ class Pipeline:
 
 		command = [evaluate(cmd) for cmd in command]
 			
+		self.name = step
 		self.runner = command[0]
 		self.arguments = command[1:]
 
@@ -35,5 +36,5 @@ class Pipeline:
 	def _args_str(self):
 		return " ".join(self.arguments)
 
-for step in process:
-	Pipeline(step).run()
+for step,command_list in steps.items().sort(lambda x:x[0]):
+	Pipeline(step,command_list).run()
