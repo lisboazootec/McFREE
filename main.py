@@ -1,8 +1,11 @@
 import os
 import argparse
 import shlex
+from string import Formatter
 
 from variables import steps,files,runners
+
+frmt = Formatter()
 
 class Variables:
 	_runners = runners
@@ -14,8 +17,13 @@ class Variables:
 
 	@classmethod
 	def format_files(cls,args_str):
+		def frmt_rec(arg):
+			arg = arg.format_map(cls._files)
+			formatable = [b for a,b,c,d in frmt.parse(arg) if b]
+			return frmt_rec(arg) if formatable else arg
+			
 		try:
-			return args_str.format_map(cls._files)
+			return frmt_rec(args_str)
 		except KeyError as e:
 			e.args = ("Referência de arquivo não encontrado: %s"%str(e),)
 			raise e
