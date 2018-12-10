@@ -26,5 +26,5 @@ steps = {
 files = {
 }
 
-runnners = {
+runners = {
 }

@@ -1,9 +1,11 @@
+import os
 import argparse
+import shlex
+from string import Formatter
 
 from variables import steps,files,runners
 
-parser = argparse.ArgumentParser()
-args = parser.parse_args()
+frmt = Formatter()
 
 class Variables:
 	_runners = runners
@@ -15,35 +17,47 @@ class Variables:
 
 	@classmethod
 	def format_files(cls,args_str):
+		def frmt_rec(arg):
+			arg = arg.format_map(cls._files)
+			formatable = [b for a,b,c,d in frmt.parse(arg) if b]
+			return frmt_rec(arg) if formatable else arg
+			
 		try:
-			return args_str.format(**cls._files)
+			return frmt_rec(args_str)
 		except KeyError as e:
 			e.args = ("Referência de arquivo não encontrado: %s"%str(e),)
 			raise e
 
-class PipelineStep:
+class PipelineStep(dict):
 
-	def __init__(self,step,command_list):
+	def __missing__(self,key):
+		return ''
 
-		command_runner,command_args = command_list
+	def __init__(self,step):
+		self.runner = Variables.get_runner(step['runner'])
+		self.args = Variables.format_files(step['args'])
+		step['args'] = self.args
+		self.update(step)
 
-		command_runner = Variables.get_runner(command_runner)
-		command_args = Variables.format_files(command_args)
+	def __str__(self):
+		return "{name}({index}): {runner} {args}".format_map(self)
 
-		self.name = step
-		self.runner = command_runner
-		self.arguments = command_args
+	__repr__ = __str__
 
 	def run(self):
+		print('Running',self)
 		if type(self.runner)==str:
 			self._runos()
 		else:
-			raise NotImplementedError()
-			self.runner(*self.arguments)
 
+			self.args = shlex.split(self.args)
+
+			parser = argparse.ArgumentParser()
+			[parser.add_argument(arg) for arg in self.args if arg.startswith('-')]
+			args = parser.parse_args(self.args)
+			self.runner(**vars(args))
 	def _runos(self):
-		command = "{} {}".format(self.runner,self.arguments)
-		# os.system(command)
-		print('Execution command "{}" on OS',command)
+		command = "{runner} {args}".format_map(self)
+		os.system(command)
 
-pipeline = [PipelineStep(step,command_list) for step,command_list in steps.items().sort(lambda x:x[0])]
+pipeline = [PipelineStep(step) for step in steps]
