@@ -44,4 +44,6 @@ files = {
 }
 
 runners = {
+	'fastQJoin':'{lib_fastQJoin}/clipper/fastq-join', # 
+	'fastQJoinRemains':fastq_join_remains,
 }
