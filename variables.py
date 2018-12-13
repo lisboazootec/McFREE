@@ -40,8 +40,23 @@ files = {
 
 }
 
-files = {
-}
+steps = [
+	{
+		"name": "Junta as reads reverse e forward",
+		'index':"s0210"
+		'runner':'fastQJoin',
+		'args':'-p {cpu_limit} -m {memory_limit} {fSeqFastQ} {rSeqFastQ} -o {mergedFastQ}',
+		'outputs':['{unpared1_fastq}','{unpared2_fastq}'],
+ 		"description": "--"
+	},
+	{
+		"name": "Juntar as reads não unidas",
+		'index':"s0220"
+		'runner':'fastQJoinRemains',
+		'args':'--unpared1-file {unpared1_fastq} --unpared2-file {unpared2_fastq} --merged-file {mergedFastQ} --output-file {final_fastq}',
+		'outputs':[]
+	}
+]
 
 runners = {
 	'fastQJoin':'{lib_fastQJoin}/clipper/fastq-join', # 
