@@ -1,6 +1,5 @@
 __all__ = [
-	'sed',
 ]
 
-def sed():
-	return "sed"
+def fastq_join_remains(unpared1_file,unpared2_file,merged_file,output_file):
+	pass
