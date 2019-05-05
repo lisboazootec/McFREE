@@ -7,19 +7,18 @@ files = {
 	'root':'pipeline',
 	
 	'lib':'{root}/lib', # Contém todos os programas utilizados na pipeline
-	'lib_fastQJoin':'{lib}/ExpressionAnalysis'
-	
+	'lib_fastQJoin':'{lib}/ExpressionAnalysis',
 	'data':'{root}/data', # Contém todos os arquivos de dados utilizados na pipeline
-	'data_fastQJoin':'{data}/FastQJoin'
-	'data_fastQuniq':'{data}/FastQUniq'
+	'data_fastQJoin':'{data}/FastQJoin',
+	'data_fastQuniq':'{data}/FastQUniq',
 	'metaseq':'{data}/Metatranscriptome_sequences', # Contém os arquivos de sequencias brutas
 	'databases':'{data}/Databases',
-	'data_HSBLASTn':'{data}/HSBLASTn'
-	'data_Trinity':'{data}/Trinity'
-	'data_TransDecoder':'{data}/TransDecoder'
+	'data_HSBLASTn':'{data}/HSBLASTn',
+	'data_Trinity':'{data}/Trinity',
+	'data_TransDecoder':'{data}/TransDecoder',
 	'lib_trinity':'{lib}/Trinity',
 	'lib_lca':'{lib}/LCA',
-	'lib_transDecoder':'{lib}/TransDecoder'
+	'lib_transDecoder':'{lib}/TransDecoder',
 
 	#### INPUT FILES
 
@@ -27,7 +26,7 @@ files = {
 	'rSeqFastQ':'{metaseq}/R.fastq', # Sequência reverse bruta gerado pelo sequenciamento
 	'accession_TaxId':'{databases}/accession2taxid.filterd.tsv', # Relacionamento de Accesion Number e Tax ID
 	'mergedFastQ':'{data_fastQJoin}/merged.fastq',
-	'unpared1_fastq':'{data_fastQJoin}/unpared1.fastq'.
+	'unpared1_fastq':'{data_fastQJoin}/unpared1.fastq',
 	'unpared2_fastq':'{data_fastQJoin}/unpared2.fastq',
 	'grouped_fastq':'{data_fastQJoin}/grouped.fastq',
 
@@ -42,7 +41,7 @@ files = {
 	'blastn_fa':'{data_HSBLASTn}/blastn.fa',
 	'trinity_fa':'{data_Trinity}/Trinity.fasta', 
 	'trinity_fa':'{data_Trinity}/Trinity.fasta', 
-	'longestOrfs':'{data_TransDecoder}/longest_orfs.pep'
+	'longestOrfs':'{data_TransDecoder}/longest_orfs.pep',
 
 	#### OUTPUT FILES
 
@@ -51,8 +50,6 @@ files = {
 	'cpu_limit':'64',
 	'memory_limit':'200',
 	'max_cov': '5' #deve ser modificado
-
-
 }
 
 steps = [
@@ -86,7 +83,7 @@ steps = [
 		"name": "Lowest Commumn Ancestor",
 		'index':"s0250",
 		'runner':'lca',
-		'args': #temos de rever os argumentos
+		'args': '',#temos de rever os argumentos
 		'outputs':[]
 	},{
 		"name": "Contig Assembly (Trinity)",
@@ -200,7 +197,8 @@ steps = [
 		'args':"--input-file {reads} --output-file {reads_id}",
 		'outputs':[]
 	},{
-		"name": "",
+		"name": "Groupko",
+		'description':'Linkar LCA e análise funcional',
 		'index':"passo10",
 		'runner':'script_groupko',
 		'args':"{final_blastp_m8} {reads_id} {blastn_fa}",
@@ -217,10 +215,10 @@ steps = [
 runners = {
 	'fastQJoin':'{lib_fastQJoin}/clipper/fastq-join', # 
 	'fastQJoinRemains':fastq_join_remains,
-	'fastqUniqSeq': fastq_uniq_seq
+	'fastqUniqSeq': fastq_uniq_seq,
 	'HSBLASTn':'HS-BLASTn',
 	'lca':'{lib_lca}/lca.py',
 	'trinity':'{lib_trinity}/[trinity_runner]',
-	'transDecoder':'{lib_transDecoder}/TransDecoder.LongOrfs'
+	'transDecoder':'{lib_transDecoder}/TransDecoder.LongOrfs',
 	'mapFilterLongestOrfs':mapfilter_longest_orfs
 }

@@ -1,4 +1,7 @@
 __all__ = [
+	'fastq_join_remains',
+	'fastq_uniq_seq',
+	'mapfilter_longest_orfs',
 ]
 
 def fastq_join_remains(unpared1_file,unpared2_file,merged_file,output_file):
