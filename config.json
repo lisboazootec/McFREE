@@ -1,0 +1,287 @@
+{
+  "default":{
+    "cpu_limit":"64",
+    "memory_limit":"200",
+    "max_cov": "5"
+  },
+  "data":{
+    "files":{
+      "input":{
+        "fSeqFastQ":"{metaseq}/F.fastq",
+        "rSeqFastQ":"{metaseq}/R.fastq",
+        "accession_TaxId":"{databases}/accession2taxid.filterd.tsv", 
+        "mergedFastQ":"{data_fastQJoin}/merged.fastq",
+        "unpared1_fastq":"{data_fastQJoin}/unpared1.fastq",
+        "unpared2_fastq":"{data_fastQJoin}/unpared2.fastq",
+        "grouped_fastq":"{data_fastQJoin}/grouped.fastq",
+        "proteinACC_Accession":"{databases}/proteinacc2acession.tsv",
+        "nomReduant_diamond":"{databases}/nr_dmnd.db",
+        "nomReduant_kegg":"{databases}/nr_kegg.db",
+        "list_redudants":"{data_fastQuniq}/list_redudants.json",
+        "uniq_fastq":"{data_fastQJoin}/uniq.fastq",
+        "refseq_fna":"{databases}/refseq.fna", 
+        "refseq_fna_counts_obinary":"{databases}/refseq.fna.counts.obinary", 
+        "blastn_fa":"{data_HSBLASTn}/blastn.fa",
+        "trinity_fa":"{data_Trinity}/Trinity.fasta", 
+        "longestOrfs":"{data_TransDecoder}/longest_orfs.pep"
+      },
+      "ouput":{}
+    },
+    "folders":{
+      "input":{
+        "root":"pipeline",
+        "lib":"{root}/lib",
+        "lib_fastQJoin":"{lib}/ExpressionAnalysis",
+        "data":"{root}/data", 
+        "data_fastQJoin":"{data}/FastQJoin",
+        "data_fastQuniq":"{data}/FastQUniq",
+        "metaseq":"{data}/Metatranscriptome_sequences", 
+        "databases":"{data}/Databases",
+        "data_HSBLASTn":"{data}/HSBLASTn",
+        "data_Trinity":"{data}/Trinity",
+        "data_TransDecoder":"{data}/TransDecoder",
+        "lib_trinity":"{lib}/Trinity",
+        "lib_lca":"{lib}/LCA",
+        "lib_transDecoder":"{lib}/TransDecoder"
+      },
+      "output":{}
+    }
+  },
+  "steps":[
+    {
+      "name": "Junta as reads reverse e forward",
+      "key":"s0210",
+      "dependsOn":null,
+      "description": "--",
+      "runner":"fastQJoin",
+      "args":"-p {cpu_limit} -m {memory_limit} {fSeqFastQ} {rSeqFastQ} -o {mergedFastQ}",
+      "outputs":["{unpared1_fastq}","{unpared2_fastq}"]
+    },
+    {
+      "name": "Juntar as reads não unidas",
+      "key":"s0220",
+      "dependsOn":"s0210",
+      "description": "",
+      "runner":"fastQJoinRemains",
+      "args":"--unpared1-file {unpared1_fastq} --unpared2-file {unpared2_fastq} --merged-file {mergedFastQ} --output-file {grouped_fastq}",
+      "outputs":[]
+    },
+    {
+      "name": "Retirar as sequencias redundantes",
+      "key":"s0230",
+      "dependsOn":"s0220",
+      "description": "",
+      "runner":"fastqUniqSeq",
+      "args":"--redundant-file {grouped_fastq} --output-file {uniq_fastq}",
+      "outputs":["{list_redudants}"]
+    },
+    {
+      "name": "MegaBLAST",
+      "key":"s0240",
+      "dependsOn":"s0230",
+      "description": "",
+      "runner":"HSBLASTn",
+      "args":"-db {refseq_fna} -window_masker_db {refseq_fna_counts_obinary} -query {uniq_fastq} -out {blastn_fa} -outfmt 7",
+      "outputs":[]
+    },
+    {
+      "name": "Lowest Commumn Ancestor",
+      "key":"s0250",
+      "dependsOn":"s0240",
+      "description": "",
+      "runner":"lca",
+      "args": "",
+      "outputs":[]
+    },
+    {
+      "name": "Contig Assembly (Trinity)",
+      "key":"s0260",
+      "dependsOn":"s0250",
+      "description": "Inicio da análise funcional",
+      "runner":"trinity",
+      "args":"--seqType fq --SS_lib_type FR --normalize_max_read_cov {max_cov} --left {fSeqFastQ} --right {rSeqFastQ} --CPU {cpu_limit} --output {trinity_fa} --trimmomatic \"ILLUMINACLIP:$TRIMMOMATIC_DIR/adapters/TruSeq3-PE.fa:2:30:10 HEADCROP:10 CROP:285 LEADING:10 TRAILING:5 SLIDINGWINDOW:4:15 MINLEN:25\"",
+      "outputs":[]
+    },
+    {
+      "name": "Identificação CDS",
+      "key":"s0270",
+      "dependsOn":"s0260",
+      "description":"Linkar LCA e análise funcional",
+      "runner":"transDecoder",
+      "args":"-t {trinity_fa} -m {memory_limit}",
+      "outputs":["{longestOrfs}"]
+    },
+    {
+      "name": "Selecionando candidatos para treino/Buscando evidências de candidatos",
+      "key":"s0280",
+      "dependsOn":"s0270",
+      "description":"Linkar LCA e análise funcional",
+      "runner":"grep_sed_cut",
+      "args":"grep \"complete\" {longestOrfs} | sed -e \"s/>//g\" | cut -d \" \" -f1 > {complete_candidates}",
+      "outputs":[]
+    },
+    {
+      "name": "",
+      "key":"passo7c1",
+      "dependsOn":"s0280",
+      "description":"Linkar LCA e análise funcional",
+      "runner":"makeblastdb",
+      "args":"-dbtype \"prot\" -in {longestOrfs} -parse_seqids -out {predicted}",
+      "outputs":[]
+    },
+    {
+      "name": "",
+      "key":"passo7c2",
+      "dependsOn":"passo7c1",
+      "description":"Linkar LCA e análise funcional",
+      "runner":"blastdbcmd",
+      "args":"-db {predicted} -entry_batch {complete_candidates} > {complete_fasta}",
+      "outputs":[]
+    },
+    {
+      "name": "",
+      "key":"passo7c2_2",
+      "dependsOn":"passo7c2",
+      "description":"sed -e \"s/lcl|//g\"",
+      "runner":"replace_lcl",
+      "args":"--input-file {complete_fasta} --output-file {complete_fasta}",
+      "outputs":[]
+    },
+    {
+      "name": "",
+      "key":"passo7d1",
+      "dependsOn":"passo7c2_2",
+      "description":"Linkar LCA e análise funcional",
+      "runner":"diamond",
+      "args":"-d {nr_dmnd} -q {complete_fasta} -a {complete_blastp} -e 1e-6 -p 64 -f \"6 qacc sacc pident qlen slen length qcovs evalue bitscore\" -k 1",
+      "outputs":[]
+    },
+    {
+      "name": "",
+      "key":"passo7d2",
+      "dependsOn":"passo7d1",
+      "description":"Linkar LCA e análise funcional",
+      "runner":"diamond",
+      "args":"view -a {complete_blastp_daa} -o {complete_blastp_m8}",
+      "outputs":[]
+    },
+    {
+      "name": "",
+      "key":"passo7e1",
+      "dependsOn":"passo7d2",
+      "description":"Linkar LCA e análise funcional",
+      "runner":"cat_cut_sort",
+      "args":"{complete_blastp_m8} | cut -f1 | sort -u > {evidences_list}",
+      "outputs":[]
+    },
+    {
+      "name": "",
+      "key":"passo7e2",
+      "dependsOn":"passo7e1",
+      "description":"Linkar LCA e análise funcional",
+      "runner":"makeblastdb",
+      "args":"-dbtype \"nucl\" -in {longestOrfs} -parse_seqids -out {cds}",
+      "outputs":[]
+    },
+    {
+      "name": "",
+      "key":"passo7e3",
+      "dependsOn":"passo7e2",
+      "description":"Linkar LCA e análise funcional",
+      "runner":"blastdbcmd",
+      "args":"-db {cds} -entry_batch {evidences_list} | sed -e \"s/lcl|//g\" > {train_fasta}",
+      "outputs":[]
+    },
+    {
+      "name": "",
+      "key":"passo7f",
+      "dependsOn":"passo7e3",
+      "description":"Linkar LCA e análise funcional",
+      "runner":"transDecoder",
+      "args":"-t {trinity_fa} --cpu 4 --train train.fasta",
+      "outputs":[]
+    },
+    {
+      "name": "",
+      "key":"passo7g1",
+      "dependsOn":"passo7f",
+      "description":"Linkar LCA e análise funcional",
+      "runner":"diamond",
+      "args":"blastp -d {nr_dmnd} -q {trinity_fasta_transdecoder_pep} -a {final_blastp} -e 1e-6 -p 64 -f \"6 qacc sacc pident qlen slen length qcovs evalue bitscore\" -k 1",
+      "outputs":[]
+    },
+    {
+      "name": "",
+      "key":"passo7g2",
+      "dependsOn":"passo7g1",
+      "description":"Linkar LCA e análise funcional",
+      "runner":"diamond",
+      "args":"view -a {final_blastp_daa} -o {final_blastp_m8}",
+      "outputs":[]
+    },
+    {
+      "name": "",
+      "key":"passo8b",
+      "dependsOn":"passo7g2",
+      "description":"Linkar LCA e análise funcional",
+      "runner":"star",
+      "args":"--runMode genomeGenerate --runThreadN 64 --genomeDir {reference} --limitGenomeGenerateRAM=80000000000 --genomeFastaFiles {trinity_fasta_transdecoder_cds}",
+      "outputs":[]
+    },
+    {
+      "name": "",
+      "key":"passo8c",
+      "dependsOn":"passo8b",
+      "description":"Linkar LCA e análise funcional",
+      "runner":"star",
+      "args":"--runMode genomeGenerate --runThreadN 64 --genomeDir {reference} --readFilesIn {f_fastq} {f_fastq} --outFileNamePrefix {star_map} --outSAMtype BAM SortedByCoordinate",
+      "outputs":[]
+    },
+    {
+      "name": "",
+      "key":"passo9a",
+      "dependsOn":"passo8c",
+      "description":"Linkar LCA e análise funcional",
+      "runner":"samtools",
+      "args":"view {star_map_aligned} > {reads}",
+      "outputs":[]
+    },
+    {
+      "name": "",
+      "key":"passo9b",
+      "dependsOn":"passo9a",
+      "description":"cut -f1,3",
+      "runner":"cut",
+      "args":"--input-file {reads} --output-file {reads_id}",
+      "outputs":[]
+    },
+    {
+      "name": "Groupko",
+      "key":"passo10",
+      "dependsOn":"passo9b",
+      "description":"Linkar LCA e análise funcional",
+      "runner":"script_groupko",
+      "args":"{final_blastp_m8} {reads_id} {blastn_fa}",
+      "outputs":[]
+    },
+    {
+      "name": "",
+      "key":"passo11",
+      "dependsOn":"passo10",
+      "description":"",
+      "runner":"mysql",
+      "args":"-h {db_hostname} -D {db_db} -u {db_user} -p < {query_sql} > {lib}.final.tsv",
+      "outputs":[]
+    }
+  ],
+  "runners":{
+    "fastQJoin":"{lib_fastQJoin}/clipper/fastq-join",
+    "fastQJoinRemains":"{fastq_join_remains}",
+    "fastqUniqSeq": "{fastq_uniq_seq}",
+    "HSBLASTn":"HS-BLASTn",
+    "lca":"{lib_lca}/lca.py",
+    "trinity":"{lib_trinity}/[trinity_runner]",
+    "transDecoder":"{lib_transDecoder}/TransDecoder.LongOrfs",
+    "mapFilterLongestOrfs":"{mapfilter_longest_orfs}"
+  }
+}
