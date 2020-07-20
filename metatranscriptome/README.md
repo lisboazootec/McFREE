@@ -17,10 +17,10 @@ __Programa__ [SeqKit](https://github.com/shenwei356/seqkit)
 _Subcomnando_ `concat`
 
 ### 1.1.4 FastQJoin - final
-Concatena os arquivos dos passos 1.2 e 1.4 em um só. 
+Concatena os arquivos dos passos 1.1.2 e 1.1.3 em um só. 
 __Comando__ `cat` ou similar
 
-## 1.2 FastUniq - remove duplicates  *?{s0230}?*
+## 1.2 FastUniq - remove duplicates  *{s0230}*
 Remove as sequencias duplicadas e salva em um arquivo separado para integração futura.
 
 __Programa__ [SeqKit](https://github.com/shenwei356/seqkit)
@@ -33,7 +33,7 @@ Realiza o download das base de dados de referência para o alinhamento das sequ�
 __Programa__ [NCBI Genome Downloading Scripts](https://github.com/kblin/ncbi-genome-download)
 _Bases_ `fungi`, `bacteria` e `viral`
 
-# 2.3 Megablast *?{s0240}?*
+# 2.2 Megablast *{s0240}*
 Executa o algoritmo de alinhamento das sequencias da amostra contra as bases de referências.
 
 __Programa__ [HS-BLASTn](https://github.com/chenying2016/queries)
