@@ -2,7 +2,6 @@ import os
 import argparse
 import shlex
 from string import Formatter
-from async_promises import Promise
 
 from variables import steps,files,runners
 
@@ -63,8 +62,3 @@ class PipelineStep(dict):
 
 pipeline = [PipelineStep(step) for step in steps]
 
-class Pipeline:
-	def run(self):
-		for parallel_steps in self.steps:
-			Promisse.all(parallel_steps)
-	

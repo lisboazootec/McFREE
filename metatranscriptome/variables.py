@@ -1,4 +1,4 @@
-from utils import *
+from metatranscriptome.utils import *
 
 
 files = {
@@ -39,7 +39,7 @@ files = {
 	'refseq_fna':'{databases}/refseq.fna', # 
 	'refseq_fna_counts_obinary':'{databases}/refseq.fna.counts.obinary', # 
 	'blastn_fa':'{data_HSBLASTn}/blastn.fa',
-	'trinity_fa':'{data_Trinity}/Trinity.fasta', 
+	# 'trinity_fa':'{data_Trinity}/Trinity.fasta', 
 	'trinity_fa':'{data_Trinity}/Trinity.fasta', 
 	'longestOrfs':'{data_TransDecoder}/longest_orfs.pep',
 
@@ -214,11 +214,11 @@ steps = [
 
 runners = {
 	'fastQJoin':'{lib_fastQJoin}/clipper/fastq-join', # 
-	'fastQJoinRemains':fastq_join_remains,
-	'fastqUniqSeq': fastq_uniq_seq,
+	# 'fastQJoinRemains':fastq_join_remains,
+	# 'fastqUniqSeq': fastq_uniq_seq,
 	'HSBLASTn':'HS-BLASTn',
 	'lca':'{lib_lca}/lca.py',
 	'trinity':'{lib_trinity}/[trinity_runner]',
 	'transDecoder':'{lib_transDecoder}/TransDecoder.LongOrfs',
-	'mapFilterLongestOrfs':mapfilter_longest_orfs
+	# 'mapFilterLongestOrfs':mapfilter_longest_orfs
 }
