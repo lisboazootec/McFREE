@@ -1,4 +1,9 @@
-# smart-biopipeline
+# McFREE
+
+MCFREE is a rapid, automated, and efficient metatranscriptome pipeline for analyzing large RNA-seq datasets in Docker containers for supercomputing cluster environments. MCFREE was born out of a need for metatranscriptome without repetition, annotated, and free of chimeras using the Megablast algorithm for taxonomic annotation.
+
+![Alt text](relative/path/to/McFREE.tif?raw=true "Title")
+
 ## Formato do arquivo [variables.py](variables.py)
 Este arquivo deve seguir primeiramente a [sintaxe](https://docs.python.org/3.6/reference/index.html) da linguagem [Python3.6](https://www.python.org/). Além disso, este arquivo contém variáveis que são utilizadas em diferentes partes da aplicação (_files_, _steps_ ,_runners_):
 
