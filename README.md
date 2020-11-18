@@ -6,7 +6,7 @@ MCFREE is a rapid, automated, and efficient metatranscriptome pipeline for analy
 
 # Requirements 
 
-* **Docker**.
+* **[Docker](https://www.docker.com/)**.
 * **Python -- v3.0 or newer**.
 * **R version -- v4.0.3 or newer**.
 
