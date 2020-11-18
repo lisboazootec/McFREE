@@ -12,12 +12,9 @@ MCFREE is a rapid, automated, and efficient metatranscriptome pipeline for analy
 
 # Dependencies 
 
-* **FastqJoin**.
-* **HS-BLASTn**.
-* **Trinity**.
-* **TransDecoder**.
-* **AC-DIAMOND**.
-* **CORNAS R package**.
-
-
-
+* **[FastqJoin](https://github.com/ExpressionAnalysis/ea-utils/blob/wiki/FastqJoin.md)**.
+* **[HS-BLASTn](https://github.com/chenying2016/queries/tree/master/hs-blastn-src)**.
+* **[Trinity](https://github.com/trinityrnaseq/trinityrnaseq)**.
+* **[TransDecoder](https://github.com/TransDecoder/TransDecoder/wiki)**.
+* **[AC-DIAMOND](https://github.com/Maihj/AC-DIAMOND)**.
+* **[CORNAS R package](https://github.com/joel-lzb/CORNAS)**.
